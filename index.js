@@ -2,15 +2,17 @@
 const weatherApi = "https://api.weather.gov/alerts/active?area="
 
 // Your code here!
-// Function to fetch weather alerts for a given US state abbreviation
+// Fetch weather alerts for a given US state abbreviation
 function fetchWeatherAlerts(state) {
+  const STATE_ABBR = state.trim().toUpperCase();
 
-  if (!state || typeof state !== "string") {
-    console.log("Please provide a valid state abbreviation.");
+  // basic validation
+  if (!STATE_ABBR || STATE_ABBR.length !== 2) {
+    showError("Please enter a valid 2-letter state abbreviation.");
     return;
   }
 
-  const STATE_ABBR = state.toUpperCase();
+  hideError();
 
   fetch(`https://api.weather.gov/alerts/active?area=${STATE_ABBR}`)
     .then((response) => {
@@ -20,11 +22,45 @@ function fetchWeatherAlerts(state) {
       return response.json();
     })
     .then((data) => {
-      // Log full API response
-      console.log("Weather Alerts Data:", data);
+      console.log("API Data:", data);
+      displayAlerts(data);
     })
     .catch((error) => {
-      // Handle network or API errors
-      console.log("Error fetching weather alerts:", error.message);
+      showError("Network error. Please try again later.");
+      console.log(error);
     });
+}
+
+// Display Data
+function displayAlerts(data) {
+  const container = document.querySelector("#alerts-display");
+  container.innerHTML = "";
+
+  const alerts = data.features || [];
+
+  // Summary
+  const summary = document.createElement("h2");
+  const title = data.title || "Weather Alerts";
+
+  summary.textContent = `${title}: ${alerts.length}`;
+  container.appendChild(summary);
+
+  // No alerts case
+  if (alerts.length === 0) {
+    const msg = document.createElement("p");
+    msg.textContent = "No active weather alerts for this state.";
+    container.appendChild(msg);
+    return;
+  }
+
+  // List alerts
+  const list = document.createElement("ul");
+
+  alerts.forEach((alert) => {
+    const li = document.createElement("li");
+    li.textContent = alert?.properties?.headline || "No headline available";
+    list.appendChild(li);
+  });
+
+  container.appendChild(list);
 }
