@@ -64,3 +64,19 @@ function displayAlerts(data) {
 
   container.appendChild(list);
 }
+
+// Event Listener and Clearing
+document.querySelector("#fetch-alerts").addEventListener("click", () => {
+  const input = document.querySelector("#state-input");
+  const state = input.value;
+
+  // Clear previous UI before fetching new data
+  document.querySelector("#alerts-display").innerHTML = "";
+  hideError();
+
+  // Clear input field after reading value
+  input.value = "";
+
+  // Fetch new data
+  fetchWeatherAlerts(state);
+});
